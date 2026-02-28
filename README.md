@@ -2,7 +2,6 @@
 
 A fast, fully-featured AI summarization web application. Upload a PDF or paste text, and receive an instant, smart summary using HuggingFace's DistilBART model. 
 
-![Sloth Summarizer](https://raw.githubusercontent.com/RagulM-69/Sloth-Summarizer-/main/static/favicon.png)
 
 ## 🌐 Live Demo
 
