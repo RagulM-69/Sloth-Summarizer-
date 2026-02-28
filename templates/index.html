@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🦥 Sloth Summarizer — Slow down. Get the point.</title>
+  <meta name="description"
+    content="Sloth Summarizer: paste text or upload a PDF and get a concise AI-powered summary in seconds." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+  <!-- ───────────────────────── HEADER ───────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <span class="logo-emoji" aria-hidden="true">🦥</span>
+        <div class="logo-text">
+          <h1 class="logo-title">Sloth Summarizer</h1>
+          <p class="logo-tagline">Slow down. Get the point.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ───────────────────────── MAIN LAYOUT ───────────────────────── -->
+  <main class="app-layout">
+
+    <!-- ══════════════════ LEFT PANEL — INPUT ══════════════════ -->
+    <section class="panel panel-input" aria-label="Input panel">
+
+      <!-- Tab switcher -->
+      <div class="tab-switcher" role="tablist" aria-label="Input method">
+        <button class="tab-btn active" id="tab-text-btn" role="tab" aria-selected="true" aria-controls="tab-text"
+          data-tab="text">
+          📄 Paste Text
+        </button>
+        <button class="tab-btn" id="tab-pdf-btn" role="tab" aria-selected="false" aria-controls="tab-pdf"
+          data-tab="pdf">
+          📎 Upload PDF
+        </button>
+      </div>
+
+      <!-- TEXT TAB -->
+      <div id="tab-text" class="tab-panel active" role="tabpanel" aria-labelledby="tab-text-btn">
+        <div class="textarea-wrapper">
+          <textarea id="text-input" class="text-area"
+            placeholder="Paste your article, essay, or any English text here..." aria-label="Text to summarize"
+            spellcheck="false"></textarea>
+          <div class="char-counter-row">
+            <span class="char-hint" id="char-hint">At least 100 characters needed</span>
+            <span class="char-counter" id="char-counter">0 chars</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF TAB -->
+      <div id="tab-pdf" class="tab-panel" role="tabpanel" aria-labelledby="tab-pdf-btn" hidden>
+        <div class="drop-zone" id="drop-zone" role="button" tabindex="0"
+          aria-label="PDF upload area — drag and drop or click to browse">
+          <div class="drop-zone-inner" id="drop-zone-inner">
+            <span class="drop-icon" aria-hidden="true">📄</span>
+            <p class="drop-primary">Drag &amp; drop your PDF here</p>
+            <p class="drop-secondary">or click to browse files</p>
+            <p class="drop-note">PDF only · Max 5 MB</p>
+          </div>
+          <div class="drop-zone-file" id="drop-zone-file" hidden>
+            <span class="file-icon" aria-hidden="true">📎</span>
+            <div class="file-info">
+              <span class="file-name" id="file-name">document.pdf</span>
+              <span class="file-meta" id="file-meta">~12 pages · approx 3 min read</span>
+            </div>
+            <button class="file-remove-btn" id="file-remove-btn" aria-label="Remove file">✕</button>
+          </div>
+        </div>
+        <input type="file" id="pdf-input" accept=".pdf" style="display:none" aria-hidden="true" />
+        <p class="pdf-error" id="pdf-error" role="alert" aria-live="assertive" hidden></p>
+      </div>
+
+      <!-- Controls row -->
+      <div class="controls">
+        <div class="control-group">
+          <label class="control-label">Format</label>
+          <div class="pill-group" id="format-group" role="group" aria-label="Summary format">
+            <button class="pill active" data-value="paragraph" aria-pressed="true">Paragraph</button>
+            <button class="pill" data-value="bullets" aria-pressed="false">• Bullets</button>
+            <button class="pill" data-value="numbered" aria-pressed="false">1. Numbered</button>
+            <button class="pill" data-value="tldr" aria-pressed="false">TL;DR</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="control-label">Length</label>
+          <div class="pill-group" id="length-group" role="group" aria-label="Summary length">
+            <button class="pill" data-value="short" aria-pressed="false">Short</button>
+            <button class="pill active" data-value="medium" aria-pressed="true">Medium</button>
+            <button class="pill" data-value="long" aria-pressed="false">Long</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="summarize-btn" id="summarize-btn" type="button">
+        Summarize 🦥
+      </button>
+
+      <!-- Status strip shown during loading -->
+      <div class="status-strip" id="status-strip" hidden aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="status-text" id="status-text">Sending to AI… this may take 5–30 seconds</span>
+      </div>
+    </section>
+
+    <!-- ══════════════════ RIGHT PANEL — OUTPUT ══════════════════ -->
+    <section class="panel panel-output" aria-label="Output panel" aria-live="polite">
+
+      <!-- Indeterminate amber progress bar (visible only during loading) -->
+      <div class="progress-bar" aria-hidden="true"></div>
+
+      <!-- State: placeholder -->
+      <div class="output-state" id="state-placeholder">
+        <div class="placeholder-inner">
+          <span class="placeholder-emoji" aria-hidden="true">🦥</span>
+          <p class="placeholder-title">Your summary will appear here...</p>
+          <p class="placeholder-sub">Paste some text or upload a PDF to get started.</p>
+        </div>
+      </div>
+
+      <!-- State: loading -->
+      <div class="output-state" id="state-loading" hidden>
+        <div class="loading-inner">
+          <div class="shimmer-bar" aria-hidden="true">
+            <div class="shimmer-line"></div>
+            <div class="shimmer-line short"></div>
+            <div class="shimmer-line"></div>
+            <div class="shimmer-line shorter"></div>
+          </div>
+          <p class="loading-msg" id="loading-msg" aria-live="polite">🦥 Reading very slowly...</p>
+        </div>
+      </div>
+
+      <!-- State: error -->
+      <div class="output-state" id="state-error" hidden>
+        <div class="error-inner">
+          <span class="error-emoji" aria-hidden="true">😴</span>
+          <p class="error-msg" id="error-msg">Something went wrong.</p>
+          <button class="retry-btn" id="retry-btn" type="button">Try again</button>
+        </div>
+      </div>
+
+      <!-- State: result -->
+      <div class="output-state" id="state-result" hidden>
+        <!-- Stats bar -->
+        <div class="stats-bar">
+          <span class="stats-text" id="stats-text">Original: — words → Summary: — words</span>
+          <span class="stats-time" id="stats-time">—</span>
+        </div>
+
+        <!-- Format badge -->
+        <div class="format-badge-row">
+          <span class="format-badge" id="format-badge">paragraph</span>
+        </div>
+
+        <!-- Summary content -->
+        <div class="summary-content" id="summary-content" tabindex="0" aria-label="Summary result"></div>
+
+        <!-- Action buttons -->
+        <div class="action-row">
+          <button class="action-btn" id="copy-btn" type="button">📋 Copy Summary</button>
+          <button class="action-btn" id="resummarize-btn" type="button">🔄 Re-summarize</button>
+          <button class="action-btn" id="download-btn" type="button">💾 Download .txt</button>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+
+</html>
