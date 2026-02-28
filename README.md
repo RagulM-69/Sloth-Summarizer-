@@ -8,7 +8,7 @@ A fast, fully-featured AI summarization web application. Upload a PDF or paste t
 
 You can try out the live version of the application here once it is deployed:
 
-👉 **[Paste Your Render URL Here]** 👈
+👉 **https://sloth-summarizer.onrender.com** 👈
 
 ---
 
